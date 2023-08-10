@@ -1,0 +1,41 @@
+function Test-InternetAccess {
+    try {
+        $response = Invoke-WebRequest -Uri "https://www.example.com" -UseBasicParsing
+        if ($response.StatusCode -eq 200) {
+            Write-Output "Internet access test successful. HTTP Status Code: $($response.StatusCode)"
+        } else {
+            Write-Output "Internet access test failed. HTTP Status Code: $($response.StatusCode)"
+        }
+    } catch {
+        Write-Output "Internet access test failed. Error: $($_.Exception.Message)"
+    }
+}
+
+function Enable-RestrictInternet {
+    # Set the fake proxy to restrict Internet access
+    [System.Net.HttpwebRequest]::DefaultwebProxy = New-Object System.Net.WebProxy("http://localhost", $true)
+    Write-Output "Internet access is now restricted."
+}
+
+function Reset-RestrictInternet {
+    # Reset the proxy to restore normal Internet access
+    [System.Net.HttpWebRequest]::DefaultwebProxy = New-Object System.Net.WebProxy($null)
+    Write-Output "Internet access is now restored."
+}
+
+# Check the command line argument and call the corresponding function
+$arg = $args[0]
+switch ($arg) {
+    "testInternetAccess" {
+        Test-InternetAccess
+    }
+    "enableRestrictInternet" {
+        Enable-RestrictInternet
+    }
+    "resetRestrictInternet" {
+        Reset-RestrictInternet
+    }
+    default {
+        Write-Output "Invalid argument. Available options: testInternetAccess, enableRestrictInternet, resetRestrictInternet"
+    }
+}
